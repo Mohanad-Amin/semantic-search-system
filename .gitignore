@@ -1,55 +1,26 @@
 # النماذج الكبيرة
-models/
+models/fine_tuned_model/
 *.safetensors
 *.bin
 *.h5
-*.onnx
 
-# Embeddings المحفوظة
+# Embeddings الحقيقية (نحتفظ بالاختبار)
 embeddings/*.npy
+!embeddings/test_*.npy
 
-# البيانات
+# البيانات الحساسة
 data/*.xlsx
 data/*.csv
-
-# السجلات
-logs/
-*.log
+!data/test_*.xlsx
 
 # Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-env/
 venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
+.env
 
-# IDE
+# السجلات والتطوير
+logs/
 .vscode/
 .idea/
 *.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db

@@ -2,23 +2,24 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# نسخ requirements أولاً للاستفادة من Docker cache
-COPY app/requirements.txt .
+# تثبيت dependencies النظام
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# تثبيت dependencies
+# نسخ وتثبيت requirements
+COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# نسخ كود التطبيق
+# نسخ التطبيق
 COPY app/ .
 
-# إنشاء مجلدات فارغة للنماذج والبيانات
-RUN mkdir -p models embeddings data logs
+# إنشاء مجلدات
+RUN mkdir -p data embeddings logs
 
-# تعريف متغير البيئة
+# متغيرات البيئة
 ENV PYTHONPATH=/app
 
-# فتح port
 EXPOSE 8000
 
-# تشغيل التطبيق
 CMD ["python", "main.py"]
