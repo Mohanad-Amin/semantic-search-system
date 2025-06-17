@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  semantic-search:
+    build: .
+    container_name: semantic-search-app
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - WANDB_DISABLED=true
+      - TRANSFORMERS_NO_ADVISORY_WARNINGS=true
+      - TOKENIZERS_PARALLELISM=true
+      - MODEL_PATH=/app/models/fine_tuned_model
+      - EMBEDDINGS_PATH=/app/embeddings
+      - DATA_PATH=/app/data
+      # تحسينات CPU
+      - CUDA_VISIBLE_DEVICES=""
+      - OMP_NUM_THREADS=4
+      - MKL_NUM_THREADS=4
+      - PYTORCH_ENABLE_MPS_FALLBACK=1
+    volumes:
+      # يمكنك ربط مجلدات خارجية إذا أردت
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s  # وقت أطول للتشغيل على CPU
+    deploy:
+      resources:
+        limits:
+          memory: 6G        # ذاكرة أكبر للـ CPU
+          cpus: '4.0'       # استخدام 4 أنوية كحد أقصى
+        reservations:
+          memory: 2G        # حجز 2GB كحد أدنى
+          cpus: '1.0'       # نواة واحدة كحد أدنى
+
+  # إضافة خدمة nginx كـ reverse proxy (اختيارية)
+  nginx:
+    image: nginx:alpine
+    container_name: semantic-search-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - semantic-search
+    restart: unless-stopped
+    profiles:
+      - production
+
+networks:
+  default:
+    name: semantic-search-network

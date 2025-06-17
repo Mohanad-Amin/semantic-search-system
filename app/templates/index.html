@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .search-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .search-box {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        .search-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .title {
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .stats-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-5">
+                    <h1 class="title display-4">
+                        <i class="fas fa-search text-primary"></i>
+                        نظام البحث الدلالي
+                    </h1>
+                    <p class="lead text-muted">ابحث في قاعدة المعرفة باستخدام الذكاء الاصطناعي</p>
+                </div>
+                
+                <div class="search-container">
+                    <form action="/search-form" method="post">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="query" class="form-label h5">
+                                    <i class="fas fa-question-circle text-primary"></i>
+                                    اكتب سؤالك هنا:
+                                </label>
+                                <textarea 
+                                    name="query" 
+                                    id="query" 
+                                    class="form-control search-box" 
+                                    rows="3" 
+                                    placeholder="مثال: ما هي أفضل الطرق لتعلم البرمجة؟"
+                                    required
+                                ></textarea>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="top_k" class="form-label">
+                                    <i class="fas fa-list-ol text-primary"></i>
+                                    عدد النتائج:
+                                </label>
+                                <select name="top_k" id="top_k" class="form-select">
+                                    <option value="5">5 نتائج</option>
+                                    <option value="10">10 نتائج</option>
+                                    <option value="15" selected>15 نتيجة</option>
+                                    <option value="20">20 نتيجة</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="submit" class="btn search-btn w-100">
+                                    <i class="fas fa-search me-2"></i>
+                                    ابحث الآن
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="stats-card">
+                                <h6 class="text-primary">
+                                    <i class="fas fa-info-circle"></i>
+                                    معلومات النظام
+                                </h6>
+                                <small class="text-muted">
+                                    يستخدم هذا النظام نموذج ذكاء اصطناعي متقدم للبحث الدلالي
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stats-card">
+                                <h6 class="text-success">
+                                    <i class="fas fa-check-circle"></i>
+                                    النظام جاهز
+                                </h6>
+                                <small class="text-muted">
+                                    النموذج محمل ومستعد للإجابة على أسئلتك
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="/docs" class="btn btn-outline-light me-3">
+                        <i class="fas fa-book"></i>
+                        وثائق API
+                    </a>
+                    <a href="/stats" class="btn btn-outline-light">
+                        <i class="fas fa-chart-bar"></i>
+                        الإحصائيات
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // تحسين تجربة المستخدم
+        document.getElementById('query').addEventListener('input', function() {
+            const btn = document.querySelector('.search-btn');
+            if (this.value.trim()) {
+                btn.classList.add('pulse');
+            } else {
+                btn.classList.remove('pulse');
+            }
+        });
+        
+        // تأثير بصري للزر
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            .pulse { animation: pulse 2s infinite; }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
