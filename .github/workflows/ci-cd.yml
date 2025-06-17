@@ -1,7 +1,9 @@
-name: Simple CI/CD
+name: Semantic Search CI/CD
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
 
 jobs:
@@ -16,21 +18,23 @@ jobs:
       with:
         python-version: 3.9
         
-    - name: List files
+    - name: Project structure
       run: |
         echo "📁 Project structure:"
         ls -la
         echo "📁 App folder:"
         ls -la app/
         
-    - name: Check requirements
+    - name: Install dependencies
       run: |
-        if [ -f app/requirements.txt ]; then
-          echo "✅ Requirements file found"
-          cat app/requirements.txt
-        else
-          echo "❌ Requirements file not found"
-        fi
+        python -m pip install --upgrade pip
+        pip install -r app/requirements.txt
+        echo "✅ Dependencies installed"
+        
+    - name: Test imports
+      run: |
+        cd app
+        python -c "print('🐍 Testing Python environment...'); import sys; print('Python version:', sys.version)"
 
   build:
     needs: test
@@ -42,5 +46,10 @@ jobs:
     - name: Build Docker image
       run: |
         echo "🔨 Building Docker image..."
-        docker build -t test-semantic-search .
+        docker build -t semantic-search:test .
         echo "✅ Docker build completed"
+        
+    - name: Test container
+      run: |
+        echo "🧪 Testing container..."
+        docker run --rm semantic-search:test python -c "print('✅ Container working!')"
