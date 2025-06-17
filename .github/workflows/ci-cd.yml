@@ -18,13 +18,6 @@ jobs:
       with:
         python-version: 3.9
         
-    - name: Project structure
-      run: |
-        echo "📁 Project structure:"
-        ls -la
-        echo "📁 App folder:"
-        ls -la app/
-        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -34,7 +27,12 @@ jobs:
     - name: Test imports
       run: |
         cd app
-        python -c "print('🐍 Testing Python environment...'); import sys; print('Python version:', sys.version)"
+        python -c "print('🐍 Testing Python environment...'); import sys; print('✅ Python', sys.version)"
+        
+    - name: Code quality
+      run: |
+        pip install flake8
+        flake8 app/ --count --statistics --max-line-length=120 || echo "⚠️ Style warnings (non-blocking)"
 
   build:
     needs: test
@@ -46,10 +44,38 @@ jobs:
     - name: Build Docker image
       run: |
         echo "🔨 Building Docker image..."
-        docker build -t semantic-search:test .
+        docker build -t semantic-search:${{ github.sha }} .
         echo "✅ Docker build completed"
         
     - name: Test container
       run: |
         echo "🧪 Testing container..."
-        docker run --rm semantic-search:test python -c "print('✅ Container working!')"
+        docker run --rm semantic-search:${{ github.sha }} python -c "print('✅ Container working perfectly!')"
+
+  deploy:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        
+    - name: Build and push to Docker Hub
+      run: |
+        echo "🚀 Building for Docker Hub..."
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/semantic-search:latest .
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/semantic-search:v${{ github.run_number }} .
+        
+        echo "📦 Pushing to Docker Hub..."
+        docker push ${{ secrets.DOCKER_USERNAME }}/semantic-search:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/semantic-search:v${{ github.run_number }}
+        
+        echo "✅ Successfully deployed to Docker Hub!"
+        echo "🔗 Latest image: ${{ secrets.DOCKER_USERNAME }}/semantic-search:latest"
+        echo "🔗 Versioned: ${{ secrets.DOCKER_USERNAME }}/semantic-search:v${{ github.run_number }}"
